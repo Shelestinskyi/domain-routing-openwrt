@@ -884,7 +884,7 @@ install_awg_packages() {
     SUBTARGET=$(ubus call system board | jsonfilter -e '@.release.target' | cut -d '/' -f 2)
     VERSION=$(ubus call system board | jsonfilter -e '@.release.version')
     PKGPOSTFIX="_v${VERSION}_${PKGARCH}_${TARGET}_${SUBTARGET}.ipk"
-    BASE_URL="https://github.com/Slava-Shchipunov/awg-openwrt/releases/download/"
+    BASE_URL="https://github.com/lolo6oT/awg-openwrt/releases/download/"
 
     AWG_DIR="/tmp/amneziawg"
     mkdir -p "$AWG_DIR"
@@ -933,6 +933,30 @@ install_awg_packages() {
             echo "kmod-amneziawg file downloaded successfully"
         else
             echo "Error installing kmod-amneziawg. Please, install kmod-amneziawg manually and run the script again"
+            exit 1
+        fi
+    fi
+
+    if opkg list-installed | grep -q kmod-amneziawg; then
+        echo "amneziawg-go already installed"
+    else
+        AMNEZIAWG_GO_FILENAME="amneziawg-go${PKGPOSTFIX}"
+        DOWNLOAD_URL="${BASE_URL}v${VERSION}/${AMNEZIAWG_GO_FILENAME}"
+        curl -L -o "$AWG_DIR/$AMNEZIAWG_GO_FILENAME" "$DOWNLOAD_URL"
+
+        if [ $? -eq 0 ]; then
+            echo "amneziawg-go file downloaded successfully"
+        else
+            echo "Error downloading amneziawg-go. Please, install amneziawg-go manually and run the script again"
+            exit 1
+        fi
+        
+        opkg install "$AWG_DIR/$AMNEZIAWG_GO_FILENAME"
+
+        if [ $? -eq 0 ]; then
+            echo "amneziawg-go file downloaded successfully"
+        else
+            echo "Error installing amneziawg-go. Please, install amneziawg-go manually and run the script again"
             exit 1
         fi
     fi
